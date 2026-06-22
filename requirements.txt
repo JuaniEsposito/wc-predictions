@@ -1,0 +1,8 @@
+pandas
+requests
+python-dotenv
+soccerdata
+statsbombpy
+python-frontmatter
+scikit-learn
+joblib

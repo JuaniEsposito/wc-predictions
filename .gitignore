@@ -1,0 +1,8 @@
+.env
+*.pkl
+dataset_mundial.csv
+live_matches.csv
+historical_matches.csv
+statsbomb_events.csv
+__pycache__/
+*.pyc
