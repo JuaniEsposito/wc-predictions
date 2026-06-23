@@ -1,0 +1,7 @@
+{
+  "xG_max": 8.0,
+  "xG_min": 0.0,
+  "dias_descanso_max": 2000,
+  "importancia_partido_max": 2.0,
+  "columnas_obligatorias": ["equipo", "oponente", "goles_favor", "xg_favor", "dias_descanso"]
+}

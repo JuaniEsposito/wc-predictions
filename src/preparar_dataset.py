@@ -5,7 +5,9 @@ from sklearn.preprocessing import LabelEncoder
 import joblib
 import json
 
-WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WIKI_DIR = os.path.join(BASE_DIR, 'wiki')
+DATA_DIR = os.path.join(BASE_DIR, 'data')
 
 def parse_result(res_str):
     # Convierte "2-0" en goles_favor=2, goles_contra=0
@@ -20,7 +22,7 @@ def inyectar_xg(df):
     Inyecta valores de xG desde el archivo JSON basados en el equipo.
     """
     try:
-        xg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'xg_data.json')
+        xg_path = os.path.join(DATA_DIR, 'xg_data.json')
         with open(xg_path, 'r') as f:
             xg_db = json.load(f)
         
@@ -38,7 +40,7 @@ def inyectar_xg(df):
 
 def preparar_dataset():
     # Verificar si existe dataset_real.csv (del API-only approach)
-    dataset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'dataset_real.csv')
+    dataset_path = os.path.join(DATA_DIR, 'dataset_real.csv')
     if os.path.exists(dataset_path):
         print("📊 Usando dataset real de la API...")
         df = pd.read_csv(dataset_path)
@@ -100,11 +102,11 @@ def preparar_dataset():
     df['oponente_encoded'] = le_oponente.transform(df['oponente'])
     
     # Guardar encoders para uso futuro
-    joblib.dump(le_equipo, 'le_equipo.pkl')
-    joblib.dump(le_oponente, 'le_oponente.pkl')
+    joblib.dump(le_equipo, os.path.join(DATA_DIR, 'le_equipo.pkl'))
+    joblib.dump(le_oponente, os.path.join(DATA_DIR, 'le_oponente.pkl'))
     
     # Guardar dataset con columnas codificadas
-    df.to_csv('dataset_mundial.csv', index=False)
+    df.to_csv(os.path.join(DATA_DIR, 'dataset_mundial.csv'), index=False)
     print("Dataset generado con éxito: dataset_mundial.csv")
     print(df.head())
     print(f"\nEncoders guardados: le_equipo.pkl, le_oponente.pkl")

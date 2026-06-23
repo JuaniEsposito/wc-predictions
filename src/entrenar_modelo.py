@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -5,9 +6,59 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import numpy as np
 import joblib
+from datetime import datetime
+import glob
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+
+def limpiar_modelos_antiguos(max_modelos=5):
+    """
+    Mantiene solo los max_modelos más recientes en /data
+    Elimina los modelos antiguos para evitar acumulación
+    """
+    # Buscar todos los modelos con timestamp
+    patron = os.path.join(DATA_DIR, 'modelo_*.pkl')
+    modelos = glob.glob(patron)
+    
+    # Ordenar por fecha de modificación (más reciente primero)
+    modelos.sort(key=os.path.getmtime, reverse=True)
+    
+    # Mantener solo los max_modelos más recientes
+    if len(modelos) > max_modelos:
+        modelos_a_eliminar = modelos[max_modelos:]
+        for modelo in modelos_a_eliminar:
+            try:
+                os.remove(modelo)
+                print(f"   🗑️  Eliminado modelo antiguo: {os.path.basename(modelo)}")
+            except Exception as e:
+                print(f"   ⚠️  Error eliminando {modelo}: {e}")
+    
+    return len(modelos)
+
+def guardar_modelo_con_versionado(modelo, tipo_modelo):
+    """
+    Guarda el modelo con timestamp y actualiza modelo_ganador.pkl
+    """
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H%M')
+    nombre_versionado = f"modelo_{timestamp}.pkl"
+    ruta_versionado = os.path.join(DATA_DIR, nombre_versionado)
+    ruta_actual = os.path.join(DATA_DIR, 'modelo_ganador.pkl')
+    
+    # Guardar versión con timestamp
+    joblib.dump(modelo, ruta_versionado)
+    print(f"   📦 Versión guardada: {nombre_versionado}")
+    
+    # Copiar a modelo_ganador.pkl para compatibilidad
+    joblib.dump(modelo, ruta_actual)
+    print(f"   🔄 Actualizado: modelo_ganador.pkl")
+    
+    # Limpiar modelos antiguos
+    total_modelos = limpiar_modelos_antiguos(max_modelos=5)
+    print(f"   📊 Total modelos en registry: {total_modelos}")
 
 # 1. Cargar el dataset que generamos
-df = pd.read_csv('dataset_mundial.csv')
+df = pd.read_csv(os.path.join(DATA_DIR, 'dataset_mundial.csv'))
 
 print(f"Dataset cargado: {len(df)} registros")
 print(df.head())
@@ -93,14 +144,14 @@ if acc_rf > 0:
     elif mas_importante in ['equipo_encoded', 'oponente_encoded']:
         print("   → La identidad del rival/equipo influye significativamente")
 
-# 8. Guardar el modelo ganador para uso futuro
+# 8. Guardar el modelo ganador para uso futuro (con versionado)
 if acc_lr >= acc_rf and acc_lr > 0:
     print("\n💾 Guardando modelo ganador (Regresión Logística)...")
-    joblib.dump(log_reg, 'modelo_ganador.pkl')
-    print("✅ Modelo guardado como modelo_ganador.pkl")
+    guardar_modelo_con_versionado(log_reg, "Regresión Logística")
+    print("✅ Modelo guardado exitosamente")
 elif acc_rf > acc_lr and acc_rf > 0:
     print("\n💾 Guardando modelo ganador (Random Forest)...")
-    joblib.dump(rf_clf, 'modelo_ganador.pkl')
-    print("✅ Modelo guardado como modelo_ganador.pkl")
+    guardar_modelo_con_versionado(rf_clf, "Random Forest")
+    print("✅ Modelo guardado exitosamente")
 else:
     print("\n⚠️  No se guardó ningún modelo (ninguno tuvo éxito)")

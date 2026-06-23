@@ -2,6 +2,9 @@ import requests
 import pandas as pd
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+
 # Configuración de filtros de ingestión
 FILTROS_INGESTA = {
     "excluir_estado": ["SCHEDULED", "TIMED"],
@@ -137,7 +140,7 @@ def obtener_datos():
             print(f"🔍 Filtros aplicados: Solo partidos FINISHED con goles, fecha >= {FILTROS_INGESTA['ventana_minima_fecha']}")
             
             # Guardar solo partidos jugados para entrenamiento
-            df_jugados.to_csv('data/dataset_real.csv', index=False)
+            df_jugados.to_csv(os.path.join(DATA_DIR, 'dataset_real.csv'), index=False)
             
             # Agregar partidos históricos de Mundial 2022
             mundial_2022 = [
@@ -355,7 +358,7 @@ def obtener_datos():
                 axis=1
             )
             
-            df_hibrido.to_csv('data/dataset_real.csv', index=False)
+            df_hibrido.to_csv(os.path.join(DATA_DIR, 'dataset_real.csv'), index=False)
             
             print(f"✅ Dataset híbrido creado: {len(df_hibrido)} partidos ({len(df_jugados)} API + {len(df_mundial)} Mundial 2022 + {len(df_conmebol)} CONMEBOL + {len(df_uefa)} UEFA + {len(df_concacaf)} CONCACAF + {len(df_afc)} AFC + {len(df_afcon)} AFCON + {len(df_copa_america)} Copa América + {len(df_eurocopa)} Eurocopa + {len(df_copa_africa)} Copa África + {len(df_copa_asia)} Copa Asia)")
         else:

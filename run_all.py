@@ -11,10 +11,12 @@ def ejecutar_pipeline():
     # 4. Entrenar y Predecir
     
     tareas = [
-        ("Obteniendo datos reales (API/Scraper)", "central_de_datos.py"),
-        ("Limpiando y unificando datos", "ingest.py"),
-        ("Calculando métricas y Dataset", "preparar_dataset.py"),
-        ("Entrenando modelo de predicción", "entrenar_modelo.py")
+        ("Validando integridad de datos", "scripts/validador_calidad.py"),
+        ("Obteniendo datos reales (API/Scraper)", "src/central_de_datos.py"),
+        ("Limpiando y unificando datos", "src/ingest.py"),
+        ("Calculando métricas y Dataset", "src/preparar_dataset.py"),
+        ("Analizando deriva de datos", "src/analizador_deriva.py"),
+        ("Entrenando modelo de predicción", "src/entrenar_modelo.py")
     ]
     
     for descripcion, script in tareas:

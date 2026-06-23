@@ -1,16 +1,20 @@
 import sys
+import os
 import pandas as pd
 import joblib
 import json
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+
 def predecir(equipo, oponente, importancia_partido=1.0, dias_descanso=7):
-    modelo = joblib.load('modelo_ganador.pkl')
-    le_equipo = joblib.load('le_equipo.pkl')
-    le_oponente = joblib.load('le_oponente.pkl')
+    modelo = joblib.load(os.path.join(DATA_DIR, 'modelo_ganador.pkl'))
+    le_equipo = joblib.load(os.path.join(DATA_DIR, 'le_equipo.pkl'))
+    le_oponente = joblib.load(os.path.join(DATA_DIR, 'le_oponente.pkl'))
     
     # Cargar datos xG
     try:
-        with open('data/xg_data.json', 'r') as f:
+        with open(os.path.join(DATA_DIR, 'xg_data.json'), 'r') as f:
             xg_db = json.load(f)
         xg_favor = xg_db.get(equipo, {}).get('xg_favor', 1.2)
         xg_contra = xg_db.get(equipo, {}).get('xg_contra', 0.9)

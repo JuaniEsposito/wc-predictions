@@ -6,10 +6,14 @@ Valida la precisión del modelo en partidos de alta importancia (importancia_par
 
 import pandas as pd
 import joblib
+import os
 from sklearn.metrics import accuracy_score, classification_report
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+
 # Cargar dataset completo
-df = pd.read_csv('dataset_mundial.csv')
+df = pd.read_csv(os.path.join(DATA_DIR, 'dataset_mundial.csv'))
 
 # Filtrar partidos de fase de eliminación (importancia_partido >= 1.5)
 elimination_matches = df[df['importancia_partido'] >= 1.5].copy()
@@ -27,9 +31,9 @@ else:
     print(elimination_matches[['equipo', 'oponente', 'importancia_partido', 'dias_descanso', 'victoria']])
     
     # Cargar modelo y encoders
-    modelo = joblib.load('modelo_ganador.pkl')
-    le_equipo = joblib.load('le_equipo.pkl')
-    le_oponente = joblib.load('le_oponente.pkl')
+    modelo = joblib.load(os.path.join(DATA_DIR, 'modelo_ganador.pkl'))
+    le_equipo = joblib.load(os.path.join(DATA_DIR, 'le_equipo.pkl'))
+    le_oponente = joblib.load(os.path.join(DATA_DIR, 'le_oponente.pkl'))
     
     # Preparar features para predicción
     elimination_matches['xg_diferencia'] = elimination_matches['xg_favor'] - elimination_matches['xg_contra']

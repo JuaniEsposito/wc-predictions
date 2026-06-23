@@ -3,6 +3,10 @@
     "wc-predictions": {
       "command": "python",
       "args": ["server_mcp.py"]
+    },
+    "wc-market": {
+      "command": "python",
+      "args": ["mcp_mercado.py"]
     }
   }
 }
