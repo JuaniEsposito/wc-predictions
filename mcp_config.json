@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wc-predictions": {
+      "command": "python",
+      "args": ["server_mcp.py"]
+    }
+  }
+}

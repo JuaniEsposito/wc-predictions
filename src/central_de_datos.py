@@ -1,6 +1,14 @@
 import requests
 import pandas as pd
 import os
+
+# Configuración de filtros de ingestión
+FILTROS_INGESTA = {
+    "excluir_estado": ["SCHEDULED", "TIMED"],
+    "incluir_competencias": ["WC", "WCQ", "NATIONS_LEAGUE"],
+    "ventana_minima_fecha": "2023-01-01",
+    "excluir_amistosos_sin_verified": True
+}
 from dotenv import load_dotenv
 
 # Cargar configuraciones
@@ -9,6 +17,79 @@ API_KEY = os.getenv("FOOTBALL_DATA_API_KEY")
 HEADERS = {"X-Auth-Token": API_KEY}
 # Usamos el endpoint para la Copa del Mundo (WC)
 URL = "https://api.football-data.org/v4/competitions/WC/matches"
+
+def calcular_importancia_partido(fecha, equipo, oponente):
+    """
+    Diferencial de Motivación (Motivación Ranking):
+    - 0.5 para amistosos
+    - 1.0 para fase de grupos
+    - 1.5 para eliminación directa
+    """
+    # Basado en la fecha y contexto del partido
+    if '2022' in str(fecha) and equipo in ['Argentina', 'France', 'Croatia', 'Morocco']:
+        # Fases finales Mundial 2022
+        if fecha in ['2022-12-13', '2022-12-14']:  # Semifinales
+            return 1.5
+        elif fecha == '2022-12-18':  # Final
+            return 1.6
+        elif fecha in ['2022-12-09', '2022-12-10']:  # Cuartos
+            return 1.4
+        elif fecha in ['2022-12-03', '2022-12-04', '2022-12-05', '2022-12-06']:  # Octavos
+            return 1.3
+        else:
+            return 1.0  # Fase de grupos
+    elif '2021' in str(fecha) and equipo in ['Argentina', 'Brazil', 'Colombia']:
+        # Copa América 2021 (fase importante)
+        return 1.2
+    elif '2021' in str(fecha) and equipo in ['Italy', 'England', 'France']:
+        # Eurocopa 2020 (fase importante)
+        return 1.2
+    else:
+        # Clasificatorias y otros
+        return 1.0
+
+def calcular_dias_descanso(df, equipo, fecha_actual):
+    """
+    Factor "Descanso" (Days Rest):
+    Calcula cuántos días pasaron desde el último partido del equipo.
+    """
+    # Filtrar partidos anteriores del mismo equipo
+    partidos_equipo = df[df['equipo'] == equipo].copy()
+    partidos_equipo['fecha'] = pd.to_datetime(partidos_equipo['fecha'], errors='coerce')
+    partidos_equipo = partidos_equipo[partidos_equipo['fecha'] < pd.to_datetime(fecha_actual)]
+    
+    if len(partidos_equipo) == 0:
+        return 7  # Default si no hay historial
+    
+    ultimo_partido = partidos_equipo['fecha'].max()
+    fecha_actual_dt = pd.to_datetime(fecha_actual)
+    
+    dias_descanso = (fecha_actual_dt - ultimo_partido).days
+    return max(dias_descanso, 1)  # Mínimo 1 día
+
+def aplicar_filtros_avanzados(df):
+    """Aplica filtros avanzados basados en configuración FIFA"""
+    # Filtrar por estado (excluir SCHEDULED, TIMED)
+    if 'estado' in df.columns:
+        df = df[~df['estado'].isin(FILTROS_INGESTA['excluir_estado'])]
+    
+    # Filtrar por fecha mínima
+    if 'fecha' in df.columns:
+        df = df[df['fecha'] >= FILTROS_INGESTA['ventana_minima_fecha']]
+    
+    # Filtrar solo partidos jugados (con goles)
+    df = df[(df['goles_favor'] > 0) | (df['goles_contra'] > 0)].copy()
+    
+    # Filtrar por tipo de competencia si está disponible
+    if 'competencia' in df.columns:
+        df = df[df['competencia'].isin(FILTROS_INGESTA['incluir_competencias'])]
+    
+    # Excluir amistosos sin verificación
+    if FILTROS_INGESTA['excluir_amistosos_sin_verified']:
+        if 'competencia' in df.columns:
+            df = df[df['competencia'] != 'FRIENDLY']
+    
+    return df
 
 def obtener_datos():
     print("🚀 Consultando API de la Copa del Mundo...")
@@ -45,11 +126,15 @@ def obtener_datos():
             # Guardar para el pipeline
             df = pd.DataFrame(matches)
             
+            # Aplicar filtros avanzados basados en configuración FIFA
+            df_filtrado = aplicar_filtros_avanzados(df)
+            
             # Filtrar partidos no jugados (0-0 que son partidos futuros)
-            df_jugados = df[(df['goles_favor'] > 0) | (df['goles_contra'] > 0)].copy()
+            df_jugados = df_filtrado[(df_filtrado['goles_favor'] > 0) | (df_filtrado['goles_contra'] > 0)].copy()
             df_futuros = df[(df['goles_favor'] == 0) & (df['goles_contra'] == 0)].copy()
             
-            print(f"✅ Éxito: {len(df)} partidos totales ({len(df_jugados)} jugados, {len(df_futuros)} futuros)")
+            print(f"✅ Éxito: {len(df)} partidos totales ({len(df_jugados)} jugados filtrados, {len(df_futuros)} futuros)")
+            print(f"🔍 Filtros aplicados: Solo partidos FINISHED con goles, fecha >= {FILTROS_INGESTA['ventana_minima_fecha']}")
             
             # Guardar solo partidos jugados para entrenamiento
             df_jugados.to_csv('data/dataset_real.csv', index=False)
@@ -257,6 +342,19 @@ def obtener_datos():
             
             # Combinar datos API con todos los datos históricos
             df_hibrido = pd.concat([df_jugados, df_mundial, df_conmebol, df_uefa, df_concacaf, df_afc, df_afcon, df_copa_america, df_eurocopa, df_copa_africa, df_copa_asia], ignore_index=True)
+            
+            # Agregar features elite al dataset
+            df_hibrido['importancia_partido'] = df_hibrido.apply(
+                lambda row: calcular_importancia_partido(row['fecha'], row['equipo'], row['oponente']), 
+                axis=1
+            )
+            
+            # Calcular días de descanso para cada partido
+            df_hibrido['dias_descanso'] = df_hibrido.apply(
+                lambda row: calcular_dias_descanso(df_hibrido, row['equipo'], row['fecha']), 
+                axis=1
+            )
+            
             df_hibrido.to_csv('data/dataset_real.csv', index=False)
             
             print(f"✅ Dataset híbrido creado: {len(df_hibrido)} partidos ({len(df_jugados)} API + {len(df_mundial)} Mundial 2022 + {len(df_conmebol)} CONMEBOL + {len(df_uefa)} UEFA + {len(df_concacaf)} CONCACAF + {len(df_afc)} AFC + {len(df_afcon)} AFCON + {len(df_copa_america)} Copa América + {len(df_eurocopa)} Eurocopa + {len(df_copa_africa)} Copa África + {len(df_copa_asia)} Copa Asia)")

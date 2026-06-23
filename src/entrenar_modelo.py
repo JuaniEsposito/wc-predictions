@@ -19,7 +19,14 @@ df['xg_diferencia'] = df['xg_favor'] - df['xg_contra']
 df['xg_ratio'] = df['xg_favor'] / (df['xg_contra'] + 0.01)  # Evitar división por cero
 df['xg_total'] = df['xg_favor'] + df['xg_contra']
 
-feature_cols = ['xg_favor', 'xg_contra', 'xg_diferencia', 'xg_ratio', 'xg_total', 'equipo_encoded', 'oponente_encoded']
+# Features elite: importancia y días de descanso
+if 'importancia_partido' not in df.columns:
+    df['importancia_partido'] = 1.0  # Default si no existe
+if 'dias_descanso' not in df.columns:
+    df['dias_descanso'] = 7  # Default si no existe
+
+feature_cols = ['xg_favor', 'xg_contra', 'xg_diferencia', 'xg_ratio', 'xg_total', 
+                'importancia_partido', 'dias_descanso', 'equipo_encoded', 'oponente_encoded']
 X = df[feature_cols]
 y = df['victoria']
 
@@ -33,7 +40,7 @@ else:
 
 # 4. Entrenar Regresión Logística
 try:
-    log_reg = LogisticRegression()
+    log_reg = LogisticRegression(max_iter=500)
     log_reg.fit(X_train, y_train)
     pred_lr = log_reg.predict(X_test)
     acc_lr = accuracy_score(y_test, pred_lr)
