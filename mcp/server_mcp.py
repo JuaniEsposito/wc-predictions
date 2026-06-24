@@ -11,7 +11,7 @@ import pandas as pd
 import json
 from datetime import datetime, timedelta
 import os
-from src.utils import API_KEY, HEADERS, FILTROS_INGESTA, load_xg_data
+from src.utils import API_KEY, HEADERS, FILTROS_INGESTA, DATA_DIR, load_xg_data
 
 # Crear servidor MCP
 app = Server("wc-predictions-mcp")
@@ -60,7 +60,7 @@ async def get_match_history(team_name: str, limit: int = 10) -> list[TextContent
     """
     try:
         # Leer dataset real
-        df = pd.read_csv('data/dataset_real.csv')
+        df = pd.read_csv(os.path.join(DATA_DIR, 'dataset_real.csv'))
         
         # Filtrar partidos del equipo
         team_matches = df[df['equipo'] == team_name].head(limit)
@@ -135,7 +135,7 @@ async def calculate_days_rest(team_name: str, match_date: str = None) -> list[Te
     La fatiga es la variable número 1 que ignoran los modelos básicos.
     """
     try:
-        df = pd.read_csv('data/dataset_real.csv')
+        df = pd.read_csv(os.path.join(DATA_DIR, 'dataset_real.csv'))
         team_matches = df[df['equipo'] == team_name].sort_values('fecha', ascending=False)
         
         if len(team_matches) == 0:
