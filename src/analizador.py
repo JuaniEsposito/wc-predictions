@@ -1,5 +1,6 @@
 import os
 import frontmatter # Requiere: pip install python-frontmatter
+from src.exceptions import DataValidationError
 
 # Ruta a tu carpeta de wiki
 WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
@@ -8,11 +9,11 @@ def parse_result(resultado):
     """Parsea el resultado (ej: '2-0') y retorna goles a favor y en contra"""
     try:
         parts = resultado.split('-')
-        if len(parts) == 2:
-            return int(parts[0]), int(parts[1])
-    except (ValueError, AttributeError):
-        pass
-    return 0, 0
+        if len(parts) != 2:
+            raise ValueError(f"Formato inesperado: '{resultado}'")
+        return int(parts[0]), int(parts[1])
+    except (ValueError, AttributeError) as e:
+        raise DataValidationError(f"No se pudo parsear resultado '{resultado}': {e}") from e
 
 def calcular_estadisticas(resultados):
     """Calcula métricas estadísticas de los partidos"""
@@ -63,10 +64,14 @@ def analizar_wiki():
             if file.endswith('.md'):
                 file_path = os.path.join(root, file)
                 
-                # Leer el archivo con frontmatter
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    post = frontmatter.load(f)
-                    resultados.append(post.metadata)
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        post = frontmatter.load(f)
+                        resultados.append(post.metadata)
+                except OSError as e:
+                    raise DataValidationError(
+                        f"Error leyendo {file_path}: {e}"
+                    ) from e
 
     # Mostrar reporte simple
     print(f"{'EQUIPO':<15} | {'PARTIDO':<15} | {'RESULTADO':<10}")

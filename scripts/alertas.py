@@ -6,15 +6,21 @@ Información valiosa para apostadores y analistas
 """
 
 import pandas as pd
+import os
 from datetime import datetime, timedelta
 import sys
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
 
 def analizar_fatiga_critica(equipo=None, dias_minimo=3):
     """
     Analiza la fatiga de equipos basándose en días de descanso
     """
-    # Cargar dataset
-    df = pd.read_csv('dataset_mundial.csv')
+    dataset_path = os.path.join(DATA_DIR, 'dataset_mundial.csv')
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(f"No se encontró {dataset_path}. Ejecuta primero el pipeline.")
+    df = pd.read_csv(dataset_path)
     
     print("🚨 MONITOR DE FATIGA CRÍTICA")
     print("=" * 60)
@@ -84,9 +90,12 @@ def generar_reporte_completo():
     """
     Genera un reporte completo de fatiga para todos los equipos
     """
-    df = pd.read_csv('dataset_mundial.csv')
+    dataset_path = os.path.join(DATA_DIR, 'dataset_mundial.csv')
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(f"No se encontró {dataset_path}. Ejecuta primero el pipeline.")
+    df = pd.read_csv(dataset_path)
     
-    print("\n📋 REPORTE COMPLETO DE FATIGA")
+    print("\nREPORTE COMPLETO DE FATIGA")
     print("=" * 60)
     
     # Estadísticas generales

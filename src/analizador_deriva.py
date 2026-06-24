@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from datetime import datetime, timedelta
+from src.exceptions import DataValidationError
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
@@ -15,15 +16,14 @@ def analizar_deriva(dataset_path=None):
     if dataset_path is None:
         dataset_path = os.path.join(DATA_DIR, 'dataset_mundial.csv')
     
-    try:
-        df = pd.read_csv(dataset_path)
-    except FileNotFoundError:
-        print("⚠️  No se encontró dataset. Saltando análisis de deriva.")
-        return True
+    if not os.path.exists(dataset_path):
+        raise DataValidationError(f"No se encontró {dataset_path}. Ejecuta primero el pipeline.")
+    df = pd.read_csv(dataset_path)
     
-    if 'xg_favor' not in df.columns or 'fecha' not in df.columns:
-        print("⚠️  Dataset no tiene columnas necesarias (xg_favor, fecha). Saltando análisis.")
-        return True
+    required_cols = ['xg_favor', 'fecha']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise DataValidationError(f"Dataset no tiene columnas necesarias: {missing}")
     
     print("🔍 Analizando deriva de datos...")
     
