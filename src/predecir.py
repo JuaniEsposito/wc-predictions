@@ -18,7 +18,7 @@ def predecir(equipo, oponente, importancia_partido=1.0, dias_descanso=7):
             xg_db = json.load(f)
         xg_favor = xg_db.get(equipo, {}).get('xg_favor', 1.2)
         xg_contra = xg_db.get(equipo, {}).get('xg_contra', 0.9)
-    except:
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
         xg_favor = 1.2
         xg_contra = 0.9
     
@@ -42,8 +42,6 @@ def predecir(equipo, oponente, importancia_partido=1.0, dias_descanso=7):
         print(f"🔮 Predicción para {equipo} vs {oponente}:")
         print(f"xG {equipo}: {xg_favor} favor / {xg_contra} contra")
         print(f"Importancia partido: {importancia_partido}, Días descanso: {dias_descanso}")
-        print(f"DEBUG: EquipoEncoded: {e_cod}, OponenteEncoded: {o_cod}")
-        print(f"DEBUG: Probabilidades brutas: {prob}")
         print(f"Probabilidad de victoria: {prob[1]*100:.2f}%")
     except Exception as e:
         print(f"Error: {str(e)}")

@@ -1,4 +1,4 @@
-import os
+import subprocess
 import sys
 
 def ejecutar_pipeline():
@@ -21,7 +21,8 @@ def ejecutar_pipeline():
     
     for descripcion, script in tareas:
         print(f"--- {descripcion} ---")
-        if os.system(f"{sys.executable} {script}") != 0:
+        result = subprocess.run([sys.executable, script])
+        if result.returncode != 0:
             print(f"❌ Error crítico en: {script}. Abortando.")
             return
         print(f"✅ {script} finalizado.\n")

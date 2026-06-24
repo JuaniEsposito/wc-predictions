@@ -14,7 +14,7 @@ def parse_result(res_str):
     try:
         f, c = res_str.split('-')
         return int(f), int(c)
-    except:
+    except (ValueError, IndexError):
         return 0, 0
 
 def inyectar_xg(df):

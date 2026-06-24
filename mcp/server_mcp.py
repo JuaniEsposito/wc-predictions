@@ -34,7 +34,7 @@ def cargar_xg_estaticos():
     try:
         with open('data/xg_data.json', 'r') as f:
             return json.load(f)
-    except:
+    except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
 XG_DB = cargar_xg_estaticos()

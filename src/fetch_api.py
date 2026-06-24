@@ -34,7 +34,7 @@ def fetch_live_matches():
     elif response.status_code == 429:
         print("Error 429: límite de requests excedido, esperar antes de reintentar")
     else:
-        print(f"Error {response.status_code}: {response.text[:200]}")
+        print(f"Error {response.status_code}")
 
 if __name__ == "__main__":
     fetch_live_matches()
