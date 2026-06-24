@@ -36,6 +36,10 @@ def predecir(equipo, oponente, importancia_partido=1.0, dias_descanso=7):
         xg_contra = 0.9
     except json.JSONDecodeError as e:
         raise ConfigurationError(f"xg_data.json tiene formato inválido: {e}") from e
+    except (AttributeError, TypeError):
+        print(f"ADVERTENCIA: xg_data.json no contiene un diccionario válido, usando xG por defecto")
+        xg_favor = 1.2
+        xg_contra = 0.9
 
     if equipo not in le_equipo.classes_:
         raise PredictionError(
