@@ -1,6 +1,7 @@
 import os
 import frontmatter
 import random
+from src.exceptions import DataValidationError
 
 WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
 
@@ -20,8 +21,19 @@ def actualizar_wiki():
                 
                 # Solo agregamos si no existen ya
                 if 'xg_favor' not in post.metadata:
-                    g_f, g_c = post.metadata.get('resultado', '0-0').split('-')
-                    xg_f, xg_c = generar_xg_realista(int(g_f), int(g_c))
+                    resultado = post.metadata.get('resultado', '0-0')
+                    parts = resultado.split('-')
+                    if len(parts) != 2:
+                        raise DataValidationError(
+                            f"Formato de resultado inválido en {file}: '{resultado}'"
+                        )
+                    try:
+                        g_f, g_c = int(parts[0]), int(parts[1])
+                    except ValueError as e:
+                        raise DataValidationError(
+                            f"Goles no numéricos en {file}: '{resultado}'"
+                        ) from e
+                    xg_f, xg_c = generar_xg_realista(g_f, g_c)
                     
                     post.metadata['xg_favor'] = xg_f
                     post.metadata['xg_contra'] = xg_c

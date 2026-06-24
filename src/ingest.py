@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from datetime import datetime
+from src.exceptions import DataValidationError
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
@@ -97,21 +98,26 @@ def ingest_csv_files():
             
             print(f"📄 Procesando {f}: {len(df)} registros")
             
-            for _, row in df.iterrows():
+            for idx, row in df.iterrows():
                 try:
                     fue_actualizado = create_wiki_file(row)
                     if fue_actualizado:
                         archivos_actualizados += 1
-                        print(f"   🔄 Actualizado: {row['equipo']}/{slugify(row['partido'])}_{str(row['fecha']).split('T')[0]}.md")
                     else:
                         archivos_creados += 1
-                        print(f"   ✅ Creado: {row['equipo']}/{slugify(row['partido'])}_{str(row['fecha']).split('T')[0]}.md")
-                except Exception as e:
-                    print(f"   ❌ Error procesando fila: {e}")
-                    
-        except Exception as e:
-            print(f"❌ Error leyendo {f}: {e}")
-            archivos_omitidos += 1
+                except KeyError as e:
+                    raise DataValidationError(
+                        f"Fila {idx} en {f} no tiene columna requerida: {e}"
+                    ) from e
+                except OSError as e:
+                    raise DataValidationError(
+                        f"Error escribiendo wiki para fila {idx} en {f}: {e}"
+                    ) from e
+
+        except pd.errors.EmptyDataError as e:
+            raise DataValidationError(f"Archivo {f} está vacío") from e
+        except pd.errors.ParserError as e:
+            raise DataValidationError(f"Error parseando CSV {f}: {e}") from e
     
     # Resumen final
     print("\n" + "=" * 50)
