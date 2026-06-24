@@ -1,8 +1,8 @@
-pandas
-requests
-python-dotenv
-soccerdata
-statsbombpy
-python-frontmatter
-scikit-learn
-joblib
+pandas>=2.0,<4
+requests>=2.31,<3
+python-dotenv>=1.0,<2
+soccerdata>=1.0
+statsbombpy>=0.4
+python-frontmatter>=1.0,<2
+scikit-learn>=1.3,<2
+joblib>=1.3,<2

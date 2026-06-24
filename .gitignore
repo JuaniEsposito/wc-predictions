@@ -1,4 +1,5 @@
 .env
+.env.*
 *.pkl
 dataset_mundial.csv
 live_matches.csv

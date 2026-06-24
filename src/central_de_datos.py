@@ -97,7 +97,10 @@ def aplicar_filtros_avanzados(df):
 def obtener_datos():
     print("🚀 Consultando API de la Copa del Mundo...")
     try:
-        response = requests.get(URL, headers=HEADERS)
+        if not API_KEY:
+            print("❌ Error: falta FOOTBALL_DATA_API_KEY en .env")
+            return
+        response = requests.get(URL, headers=HEADERS, timeout=15)
         if response.status_code == 200:
             data = response.json()
             matches = []
@@ -362,7 +365,7 @@ def obtener_datos():
             
             print(f"✅ Dataset híbrido creado: {len(df_hibrido)} partidos ({len(df_jugados)} API + {len(df_mundial)} Mundial 2022 + {len(df_conmebol)} CONMEBOL + {len(df_uefa)} UEFA + {len(df_concacaf)} CONCACAF + {len(df_afc)} AFC + {len(df_afcon)} AFCON + {len(df_copa_america)} Copa América + {len(df_eurocopa)} Eurocopa + {len(df_copa_africa)} Copa África + {len(df_copa_asia)} Copa Asia)")
         else:
-            print(f"❌ Error API: {response.status_code} - {response.text}")
+            print(f"❌ Error API: {response.status_code}")
     except Exception as e:
         print(f"❌ Error en la comunicación con la API: {e}")
 

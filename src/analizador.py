@@ -10,7 +10,7 @@ def parse_result(resultado):
         parts = resultado.split('-')
         if len(parts) == 2:
             return int(parts[0]), int(parts[1])
-    except:
+    except (ValueError, AttributeError):
         pass
     return 0, 0
 
