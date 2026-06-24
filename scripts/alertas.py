@@ -9,9 +9,7 @@ import pandas as pd
 import os
 from datetime import datetime, timedelta
 import sys
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+from src.utils import DATA_DIR
 
 def analizar_fatiga_critica(equipo=None, dias_minimo=3):
     """

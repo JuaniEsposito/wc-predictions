@@ -2,8 +2,7 @@ import os
 import frontmatter
 import random
 from src.exceptions import DataValidationError
-
-WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
+from src.utils import WIKI_DIR
 
 def generar_xg_realista(goles_favor, goles_contra):
     # Genera un xG basado en los goles reales, con un margen de aleatoriedad

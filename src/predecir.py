@@ -4,9 +4,7 @@ import pandas as pd
 import joblib
 import json
 from src.exceptions import PredictionError, ConfigurationError
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+from src.utils import BASE_DIR, DATA_DIR, compute_xg_features
 
 def predecir(equipo, oponente, importancia_partido=1.0, dias_descanso=7):
     modelo_path = os.path.join(DATA_DIR, 'modelo_ganador.pkl')
@@ -53,9 +51,7 @@ def predecir(equipo, oponente, importancia_partido=1.0, dias_descanso=7):
     e_cod = le_equipo.transform([equipo])[0]
     o_cod = le_oponente.transform([oponente])[0]
 
-    xg_diferencia = xg_favor - xg_contra
-    xg_ratio = xg_favor / (xg_contra + 0.01)
-    xg_total = xg_favor + xg_contra
+    xg_diferencia, xg_ratio, xg_total = compute_xg_features(xg_favor, xg_contra)
 
     input_data = pd.DataFrame([[xg_favor, xg_contra, xg_diferencia, xg_ratio, xg_total,
                                 importancia_partido, dias_descanso, e_cod, o_cod]],

@@ -2,24 +2,8 @@ import requests
 import pandas as pd
 import os
 from src.exceptions import DataFetchError, ConfigurationError
+from src.utils import BASE_DIR, DATA_DIR, API_KEY, HEADERS, FILTROS_INGESTA
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-
-# Configuración de filtros de ingestión
-FILTROS_INGESTA = {
-    "excluir_estado": ["SCHEDULED", "TIMED"],
-    "incluir_competencias": ["WC", "WCQ", "NATIONS_LEAGUE"],
-    "ventana_minima_fecha": "2023-01-01",
-    "excluir_amistosos_sin_verified": True
-}
-from dotenv import load_dotenv
-
-# Cargar configuraciones
-load_dotenv()
-API_KEY = os.getenv("FOOTBALL_DATA_API_KEY")
-HEADERS = {"X-Auth-Token": API_KEY}
-# Usamos el endpoint para la Copa del Mundo (WC)
 URL = "https://api.football-data.org/v4/competitions/WC/matches"
 
 def calcular_importancia_partido(fecha, equipo, oponente):

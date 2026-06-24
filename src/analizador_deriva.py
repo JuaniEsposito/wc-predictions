@@ -2,9 +2,7 @@ import pandas as pd
 import os
 from datetime import datetime, timedelta
 from src.exceptions import DataValidationError
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+from src.utils import DATA_DIR
 
 def analizar_deriva(dataset_path=None):
     """

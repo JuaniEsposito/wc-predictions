@@ -10,38 +10,13 @@ import requests
 import pandas as pd
 import json
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 import os
-
-# Cargar configuraciones
-load_dotenv()
-API_KEY = os.getenv("FOOTBALL_DATA_API_KEY")
-HEADERS = {"X-Auth-Token": API_KEY}
+from src.utils import API_KEY, HEADERS, FILTROS_INGESTA, load_xg_data
 
 # Crear servidor MCP
 app = Server("wc-predictions-mcp")
 
-# Configuración de filtros
-FILTROS_INGESTA = {
-    "excluir_estado": ["SCHEDULED", "TIMED"],
-    "incluir_competencias": ["WC", "WCQ", "NATIONS_LEAGUE"],
-    "ventana_minima_fecha": "2023-01-01",
-    "excluir_amistosos_sin_verified": True
-}
-
-# Cargar datos xG estáticos como fallback
-def cargar_xg_estaticos():
-    try:
-        with open('data/xg_data.json', 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print("ADVERTENCIA: data/xg_data.json no encontrado, usando xG vacío")
-        return {}
-    except json.JSONDecodeError as e:
-        print(f"ADVERTENCIA: data/xg_data.json tiene JSON inválido: {e}")
-        return {}
-
-XG_DB = cargar_xg_estaticos()
+XG_DB = load_xg_data()
 
 @app.tool(
     name="get_live_xg",
