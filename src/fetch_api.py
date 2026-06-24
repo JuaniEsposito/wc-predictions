@@ -1,12 +1,9 @@
 import requests
 import pandas as pd
 import os
-from dotenv import load_dotenv
 from src.exceptions import ConfigurationError, DataFetchError
+from src.utils import API_KEY, HEADERS
 
-load_dotenv()
-API_KEY = os.getenv("FOOTBALL_DATA_API_KEY")
-HEADERS = {"X-Auth-Token": API_KEY}
 URL = "https://api.football-data.org/v4/matches"
 
 def fetch_live_matches():

@@ -5,19 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 import joblib
 import json
 from src.exceptions import DataValidationError
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WIKI_DIR = os.path.join(BASE_DIR, 'wiki')
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-
-def parse_result(res_str):
-    try:
-        parts = res_str.split('-')
-        if len(parts) != 2:
-            raise ValueError(f"Formato de resultado inesperado: '{res_str}'")
-        return int(parts[0]), int(parts[1])
-    except (ValueError, AttributeError) as e:
-        raise DataValidationError(f"No se pudo parsear resultado '{res_str}': {e}") from e
+from src.utils import parse_result, BASE_DIR, WIKI_DIR, DATA_DIR
 
 def inyectar_xg(df):
     """

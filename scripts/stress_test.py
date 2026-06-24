@@ -9,9 +9,7 @@ import joblib
 import os
 import sys
 from sklearn.metrics import accuracy_score, classification_report
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+from src.utils import DATA_DIR, FEATURE_COLS
 
 
 def run_stress_test():
@@ -47,10 +45,7 @@ def run_stress_test():
     elimination_matches['xg_ratio'] = elimination_matches['xg_favor'] / (elimination_matches['xg_contra'] + 0.01)
     elimination_matches['xg_total'] = elimination_matches['xg_favor'] + elimination_matches['xg_contra']
 
-    feature_cols = ['xg_favor', 'xg_contra', 'xg_diferencia', 'xg_ratio', 'xg_total',
-                    'importancia_partido', 'dias_descanso', 'equipo_encoded', 'oponente_encoded']
-
-    X_elim = elimination_matches[feature_cols]
+    X_elim = elimination_matches[FEATURE_COLS]
     y_elim = elimination_matches['victoria']
 
     pred_elim = modelo.predict(X_elim)

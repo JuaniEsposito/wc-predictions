@@ -1,9 +1,8 @@
 import os
 import frontmatter
+from src.utils import WIKI_DIR, LLAVES_OBLIGATORIAS_FRONTMATTER
 
-WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
-
-LLAVES_OBLIGATORIAS = ['equipo', 'partido', 'fecha', 'resultado', 'oponente']
+LLAVES_OBLIGATORIAS = LLAVES_OBLIGATORIAS_FRONTMATTER
 
 def validar_frontmatter():
     archivos_con_errores = []

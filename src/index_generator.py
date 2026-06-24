@@ -1,7 +1,7 @@
 import os
 import frontmatter
+from src.utils import WIKI_DIR
 
-WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
 INDEX_FILE = os.path.join(WIKI_DIR, 'INDEX.md')
 
 def generar_indice():

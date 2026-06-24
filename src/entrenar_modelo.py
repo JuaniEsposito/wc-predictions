@@ -9,9 +9,7 @@ import joblib
 from datetime import datetime
 import glob
 from src.exceptions import ModelTrainingError, DataValidationError
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+from src.utils import DATA_DIR, FEATURE_COLS
 
 def limpiar_modelos_antiguos(max_modelos=5):
     """
@@ -79,9 +77,7 @@ def entrenar():
     if 'dias_descanso' not in df.columns:
         df['dias_descanso'] = 7
 
-    feature_cols = ['xg_favor', 'xg_contra', 'xg_diferencia', 'xg_ratio', 'xg_total',
-                    'importancia_partido', 'dias_descanso', 'equipo_encoded', 'oponente_encoded']
-    X = df[feature_cols]
+    X = df[FEATURE_COLS]
     y = df['victoria']
 
     if len(y.unique()) < 2:
@@ -140,9 +136,9 @@ def entrenar():
         indices = np.argsort(importancias)[::-1]
 
         for i, idx in enumerate(indices):
-            print(f"{i+1}. {feature_cols[idx]}: {importancias[idx]:.4f} ({importancias[idx]*100:.1f}%)")
+            print(f"{i+1}. {FEATURE_COLS[idx]}: {importancias[idx]:.4f} ({importancias[idx]*100:.1f}%)")
 
-        mas_importante = feature_cols[indices[0]]
+        mas_importante = FEATURE_COLS[indices[0]]
         print(f"\nVariable más importante: {mas_importante}")
 
         if mas_importante in ['goles_favor', 'goles_contra']:

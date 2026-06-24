@@ -2,24 +2,10 @@ import os
 import pandas as pd
 from datetime import datetime
 from src.exceptions import DataValidationError
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-WIKI_DIR = os.path.join(BASE_DIR, 'wiki')
-
-# Columnas estándar que debe tener el CSV
-COLUMNAS_ESTANDAR = ['equipo', 'oponente', 'partido', 'fecha', 'resultado']
-
-def slugify(text):
-    """Convierte texto a formato seguro para nombres de archivo"""
-    return str(text).lower().replace(" ", "_").replace("/", "-").replace(":", "-")
-
-def sanitize_filename(text):
-    """Elimina caracteres inválidos para nombres de archivo"""
-    invalid_chars = '<>:"/\\|?*'
-    for char in invalid_chars:
-        text = text.replace(char, '-')
-    return text
+from src.utils import (
+    BASE_DIR, DATA_DIR, WIKI_DIR, COLUMNAS_ESTANDAR,
+    slugify, sanitize_filename
+)
 
 def create_wiki_file(row, update_existing=True):
     """Crea o actualiza archivo .md en /wiki"""

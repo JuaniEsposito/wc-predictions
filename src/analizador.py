@@ -1,19 +1,7 @@
 import os
-import frontmatter # Requiere: pip install python-frontmatter
+import frontmatter
 from src.exceptions import DataValidationError
-
-# Ruta a tu carpeta de wiki
-WIKI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wiki')
-
-def parse_result(resultado):
-    """Parsea el resultado (ej: '2-0') y retorna goles a favor y en contra"""
-    try:
-        parts = resultado.split('-')
-        if len(parts) != 2:
-            raise ValueError(f"Formato inesperado: '{resultado}'")
-        return int(parts[0]), int(parts[1])
-    except (ValueError, AttributeError) as e:
-        raise DataValidationError(f"No se pudo parsear resultado '{resultado}': {e}") from e
+from src.utils import parse_result, WIKI_DIR
 
 def calcular_estadisticas(resultados):
     """Calcula métricas estadísticas de los partidos"""
