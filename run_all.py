@@ -18,8 +18,13 @@ def ejecutar_pipeline():
 
     for descripcion, script in tareas:
         print(f"--- {descripcion} ---")
+        if script.startswith("src/") and script.endswith(".py"):
+            module = script[:-3].replace("/", ".")
+            cmd = [sys.executable, "-m", module]
+        else:
+            cmd = [sys.executable, script]
         result = subprocess.run(
-            [sys.executable, script],
+            cmd,
             capture_output=True,
             text=True,
         )

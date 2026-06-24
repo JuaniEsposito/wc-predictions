@@ -116,7 +116,7 @@ def obtener_datos():
     for match in data['matches']:
         home_team = match.get('homeTeam', {}).get('name')
         away_team = match.get('awayTeam', {}).get('name')
-        score = match.get('score', {}).get('fullTime', {})
+        score = (match.get('score') or {}).get('fullTime') or {}
 
         home_score = score.get('home')
         away_score = score.get('away')

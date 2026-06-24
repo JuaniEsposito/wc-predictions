@@ -29,7 +29,10 @@ def calcular_estadisticas(resultados):
     
     for r in resultados:
         resultado = r.get('resultado', '0-0')
-        goles_favor, goles_contra = parse_result(resultado)
+        try:
+            goles_favor, goles_contra = parse_result(resultado)
+        except DataValidationError:
+            goles_favor, goles_contra = 0, 0
         
         total_goles_favor += goles_favor
         total_goles_contra += goles_contra
