@@ -1,6 +1,7 @@
 import pytest
 
 from src.analizador import parse_result, calcular_estadisticas
+from src.exceptions import DataValidationError
 
 
 class TestParseResult:
@@ -13,17 +14,21 @@ class TestParseResult:
     def test_high_score(self):
         assert parse_result("7-0") == (7, 0)
 
-    def test_invalid_format_returns_zeros(self):
-        assert parse_result("abc") == (0, 0)
+    def test_invalid_format_raises(self):
+        with pytest.raises(DataValidationError):
+            parse_result("abc")
 
-    def test_empty_string_returns_zeros(self):
-        assert parse_result("") == (0, 0)
+    def test_empty_string_raises(self):
+        with pytest.raises(DataValidationError):
+            parse_result("")
 
-    def test_extra_dashes_returns_zeros(self):
-        assert parse_result("1-2-3") == (0, 0)
+    def test_extra_dashes_raises(self):
+        with pytest.raises(DataValidationError):
+            parse_result("1-2-3")
 
-    def test_non_numeric_parts_returns_zeros(self):
-        assert parse_result("a-b") == (0, 0)
+    def test_non_numeric_parts_raises(self):
+        with pytest.raises(DataValidationError):
+            parse_result("a-b")
 
 
 class TestCalcularEstadisticas:

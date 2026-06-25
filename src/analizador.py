@@ -17,7 +17,11 @@ def calcular_estadisticas(resultados):
     
     for r in resultados:
         resultado = r.get('resultado', '0-0')
-        goles_favor, goles_contra = parse_result(resultado)
+        try:
+            goles_favor, goles_contra = parse_result(resultado)
+        except DataValidationError:
+            total_partidos -= 1
+            continue
         
         total_goles_favor += goles_favor
         total_goles_contra += goles_contra
@@ -29,6 +33,9 @@ def calcular_estadisticas(resultados):
         else:
             derrotas += 1
     
+    if total_partidos == 0:
+        return None
+
     porcentaje_victorias = (victorias / total_partidos) * 100
     promedio_goles_favor = total_goles_favor / total_partidos
     promedio_goles_contra = total_goles_contra / total_partidos
